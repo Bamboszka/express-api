@@ -3,6 +3,7 @@ const uuid = require('uuid');
 const router = express.Router();
 const cors = require('cors');
 const path = require('path');
+const socket = require('socket.io');
 
 const app = express();
 
@@ -23,11 +24,16 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/client/build/index.html'));
 });
 
-app.listen(process.env.PORT || 8000, () => {
+app.use((req, res) => {
+  res.status(400).send('Not found..');
+});
+
+const server = app.listen(process.env.PORT || 8000, () => {
   console.log('Server is running on port: 8000');
 });
 
-app.use((req, res) => {
-  res.status(400).send('Not found..');
+const io = socket(server);
+io.on('connection', (socket) => {
+  console.log('New client! Its id' + socket.id);
 });
 
